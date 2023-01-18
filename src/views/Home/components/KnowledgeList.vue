@@ -45,7 +45,7 @@ const onLoad = async () => {
     params.value.current++
   }
   loading.value = false
-  console.log(list.value)
+  // console.log(list.value)
 }
 </script>
 
