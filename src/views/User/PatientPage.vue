@@ -1,9 +1,20 @@
 <template>
   <div class="patient-page">
-    <CpNavBar title="家庭档案"></CpNavBar>
+    <CpNavBar :title="isChange ? '选择患者' : '家庭档案'"></CpNavBar>
+    <!-- 头部提示  只有选择患者时可见-->
+    <div class="patient-change" v-if="isChange">
+      <h3>请选择患者信息</h3>
+      <p>以便医生给出更准确的治疗，信息仅医生可见</p>
+    </div>
     <!-- 列表 -->
     <div class="patient-list">
-      <div class="patient-item" v-for="item in list" :key="item.id">
+      <div
+        class="patient-item"
+        v-for="item in list"
+        :key="item.id"
+        @click="selectedPatient(item)"
+        :class="{ selected: patientId === item.id }"
+      >
         <div class="info">
           <span class="name">{{ item.name }}</span>
           <span class="id">{{ item.idCard.replace(/^(.{6}).+(.{4})$/, '\$1******\$2') }}</span>
@@ -24,6 +35,11 @@
       </div>
       <div class="patient-tip">最多可添加6人</div>
     </div>
+    <!-- 底部按钮  只有选择患者时可见-->
+    <div class="patient-next" v-if="isChange">
+      <van-button type="primary" @click="next" round block>下一步</van-button>
+    </div>
+
     <!-- 弹出层 -->
     <VanPopup v-model:show="show" position="right" :style="{ width: '100%', height: '100%' }">
       <cp-nav-bar
@@ -67,15 +83,19 @@
 
 <script setup lang="ts">
 import { addPatient, delPatient, editPatient, getPatientList } from '@/services/user'
+import { useConsultStore } from '@/stores'
 import type { PatientList, Patient } from '@/types/user'
 import { nameRules, idCardRules } from '@/utils/rules'
-import { showConfirmDialog, showSuccessToast } from 'vant'
+import { showConfirmDialog, showSuccessToast, showToast } from 'vant'
 import type { FormInstance } from 'vant/lib/form/types'
 import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 let Options = [
   { label: '男', value: 1 },
   { label: '女', value: 0 }
 ]
+const router = useRouter()
+const store = useConsultStore()
 // 渲染列表
 const list = ref<PatientList>([])
 // 获取数据
@@ -83,6 +103,8 @@ const getList = async () => {
   const res = await getPatientList()
   console.log(res)
   list.value = res.data
+  //如果是选择患者时调用下面这个函数
+  changeDeafultPatient()
 }
 onMounted(() => {
   getList()
@@ -174,6 +196,42 @@ const onSubmit = async () => {
   showSuccessToast(patient.value.id ? '编辑成功' : '新增成功')
   // 关闭弹出框
   show.value = false
+}
+
+//选择患者
+// 1.界面兼容
+const route = useRoute()
+// 如果上个页面传参数过来了才可以选择患者
+const isChange = computed(() => route.query.isChange === '1')
+// 2.点击效果,选择患者
+// 选中的id
+const patientId = ref<string>()
+// 选中患者  只有当时选中患者时 才能点击
+const selectedPatient = (item: Patient) => {
+  if (isChange.value) {
+    patientId.value = item.id
+  }
+}
+// 3.默认选中,有默认就诊人就选他,没有就选第一个
+const changeDeafultPatient = () => {
+  // 如果是选择患者并且 list里面有数据
+  if (isChange.value && list.value.length) {
+    // 默认患者  defaultFlag为1代表是默认患者
+    const defPatient = list.value.find((item) => item.defaultFlag === 1)
+    // 如果默认就诊人就选他,没有就选第一个
+    if (defPatient) {
+      patientId.value = defPatient.id
+    } else {
+      patientId.value = list.value[0].id
+    }
+  }
+}
+// 4.点击下一步:一定要选中患者,存储就诊患者store,跳转到支付页面
+const next = () => {
+  if (!patientId.value) return showToast('请选择患者')
+  store.setPatient(patientId.value)
+  // 跳转到支付页面
+  router.push('/consult/pay')
 }
 </script>
 
@@ -289,5 +347,25 @@ const onSubmit = async () => {
 
 .pb4 {
   padding-bottom: 4px;
+}
+.patient-change {
+  padding: 15px;
+  > h3 {
+    font-weight: normal;
+    margin-bottom: 5px;
+  }
+  > p {
+    color: var(--cp-text3);
+  }
+}
+.patient-next {
+  padding: 15px;
+  background-color: #fff;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  box-sizing: border-box;
 }
 </style>
