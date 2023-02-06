@@ -9,7 +9,9 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+      reactivityTransform: true
+    }),
     // 自动导入的插件，解析器可以是 vant element and-vue
     Components({
       dts: false,

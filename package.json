@@ -12,11 +12,15 @@
   },
   "dependencies": {
     "@vueuse/core": "^9.11.0",
+    "add": "^2.0.6",
     "axios": "^1.2.2",
+    "dayjs": "^1.11.7",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.28",
     "pinia-plugin-persistedstate": "^3.0.2",
+    "pnpm": "^7.26.3",
     "postcss-px-to-viewport-8-plugin": "^1.1.5",
+    "socket.io-client": "^4.5.4",
     "vant": "^4.0.7",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
