@@ -33,30 +33,13 @@
       @click="openSheet"
       :loading="loading"
     />
-    <van-action-sheet
+    <!-- 支付的抽屉组件  代码全部封装到 CpPaySheet中了 -->
+    <CpPaySheet
+      :onClose="onClose"
+      :orderId="orderId!"
       v-model:show="show"
-      title="选择支付方式"
-      :closeable="false"
-      :before-close="onClose"
-      :close-on-popstate="false"
-    >
-      <div class="pay-type">
-        <p class="amount">￥{{ payInfo.actualPayment.toFixed(2) }}</p>
-        <van-cell-group>
-          <van-cell title="微信支付" @click="paymentMethod = 0">
-            <template #icon><cp-icon name="consult-wechat" /></template>
-            <template #extra><van-checkbox :checked="paymentMethod === 0" /></template>
-          </van-cell>
-          <van-cell title="支付宝支付" @click="paymentMethod = 1">
-            <template #icon><cp-icon name="consult-alipay" /></template>
-            <template #extra><van-checkbox :checked="paymentMethod === 1" /></template>
-          </van-cell>
-        </van-cell-group>
-        <div class="btn">
-          <van-button type="primary" round block @click="pay">立即支付</van-button>
-        </div>
-      </div>
-    </van-action-sheet>
+      :actualPayment="payInfo.actualPayment"
+    ></CpPaySheet>
   </div>
   <div class="consult-pay-page" v-else>
     <van-skeleton title :row="3" />
@@ -67,16 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import {
-  getConsultOrderPre,
-  getPatientDetail,
-  createConsultOrder,
-  getConsultOrderPayUrl
-} from '@/services/consult'
+import CpPaySheet from '@/components/CpPaySheet.vue'
+import { getConsultOrderPre, getPatientDetail, createConsultOrder } from '@/services/consult'
 import { useConsultStore } from '@/stores'
 import type { ConsultOrderPreData } from '@/types/consult'
 import type { Patient } from '@/types/user'
-import { showConfirmDialog, showDialog, showLoadingToast, showToast } from 'vant'
+import { showConfirmDialog, showDialog, showToast } from 'vant'
 import { onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
@@ -126,7 +105,7 @@ const loading = ref(false)
 // 是否显示支付弹窗
 const show = ref(false)
 // 0为微信支付 1为支付宝支付
-const paymentMethod = ref<0 | 1>()
+// const paymentMethod = ref<0 | 1>()
 // 订单id
 const orderId = ref('')
 // 打开支付弹窗 生成订单
@@ -176,19 +155,20 @@ const onClose = () => {
 }
 
 // 支付
-const pay = async () => {
-  if (paymentMethod.value === undefined) return showToast('请选择支付防止')
-  showLoadingToast('跳转支付')
-  // 生成支付链接
-  const res = await getConsultOrderPayUrl({
-    orderId: orderId.value,
-    paymentMethod: paymentMethod.value,
-    // 支付完成后跳转的路由地址
-    payCallback: 'http://localhost:5173/room'
-  })
-  // 跳转到链接里支付
-  window.location.href = res.data.payUrl
-}
+// 此方法封装到  CpPaySheet.vue中了
+// const pay = async () => {
+//   if (paymentMethod.value === undefined) return showToast('请选择支付防止')
+//   showLoadingToast('跳转支付')
+//   // 生成支付链接
+//   const res = await getConsultOrderPayUrl({
+//     orderId: orderId.value,
+//     paymentMethod: paymentMethod.value,
+//     // 支付完成后跳转的路由地址
+//     payCallback: 'http://localhost:5173/room'
+//   })
+//   // 跳转到链接里支付
+//   window.location.href = res.data.payUrl
+// }
 </script>
 
 <style scoped lang="scss">
@@ -252,27 +232,6 @@ const pay = async () => {
   .van-submit-bar__button {
     font-weight: normal;
     width: 160px;
-  }
-}
-.pay-type {
-  .amount {
-    padding: 20px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  .btn {
-    padding: 15px;
-  }
-  .van-cell {
-    align-items: center;
-    .cp-icon {
-      margin-right: 10px;
-      font-size: 18px;
-    }
-    .van-checkbox :deep(.van-checkbox__icon) {
-      font-size: 16px;
-    }
   }
 }
 </style>

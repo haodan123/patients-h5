@@ -55,7 +55,7 @@
     </div>
     <div class="foot" v-if="item.status === OrderType.ConsultChat">
       <van-button
-        @click="showPrescription(item.id)"
+        @click="showPrescription(item.prescriptionId)"
         v-if="item.prescriptionId"
         class="gray"
         plain
@@ -69,7 +69,7 @@
       </van-button>
     </div>
     <div class="foot" v-if="item.status === OrderType.ConsultComplete">
-      <div class="more">
+      <!-- <div class="more">
         <van-popover
           placement="top-start"
           v-model:show="showPopover"
@@ -78,7 +78,15 @@
         >
           <template #reference> 更多 </template>
         </van-popover>
-      </div>
+      </div> -->
+      <!-- 更多按钮封装成了一个组件  在订单详情里也可以复用 -->
+      <!-- start -->
+      <CpConsultMore
+        :disabled="!item.prescriptionId"
+        @on-delete="deleteConsultOrder(item)"
+        @on-preview="showPrescription(item.prescriptionId)"
+      ></CpConsultMore>
+      <!-- end -->
       <van-button class="gray" plain size="small" round :to="`/room?orderId=${item.id}`">
         问诊记录
       </van-button>
@@ -105,10 +113,11 @@
 <script setup lang="ts">
 import type { ConsultOrderItem } from '@/types/consult'
 import { OrderType } from '@/enums'
-import { computed, ref } from 'vue'
-import { cancelOrder, deleteOrder } from '@/services/consult'
-import { showFailToast, showSuccessToast } from 'vant'
-import { useShowPrescription } from '@/composable'
+// import { ref } from 'vue'
+// import { deleteOrder } from '@/services/consult'
+// import { showFailToast, showSuccessToast } from 'vant'
+import { useConsultOrder, useShowPrescription, useDeleteOrder } from '@/composable'
+import CpConsultMore from '@/components/CpConsultMore.vue'
 const props = defineProps<{ item: ConsultOrderItem }>()
 const emit = defineEmits<{
   (e: 'on-delete', id: string): void
@@ -123,55 +132,61 @@ const { showPrescription } = useShowPrescription()
 //咨询中：查看处方（如果开了）+继续沟通
 //已完成：更多（查看处方，如果开了，删除订单）+问诊记录+（未评价?写评价:查看评价）
 //已取消：删除订单+咨询其他医生
-const showPopover = ref(false)
-const actions = computed(() => [
-  { text: '查看处方', disabled: !props.item.prescriptionId },
-  { text: '删除订单' }
-])
+// const showPopover = ref(false)
+// const actions = computed(() => [
+//   { text: '查看处方', disabled: !props.item.prescriptionId },
+//   { text: '删除订单' }
+// ])
+// // 点击了更多
+// const onSelect = async (e: any) => {
+//   console.log(e)
+//   if (e.text === '删除订单') {
+//     // 删除订单
+//     deleteConsultOrder(props.item)
+//   } else if (e.text === '查看处方') {
+//     showPrescription(props.item.prescriptionId)
+//   }
+// }
+// 更多全部都封装到下面这个组件里面了 CpConsultMore
+// import CpConsultMore from '@/components/CpConsultMore.vue'
 
-// 点击了更多
-const onSelect = async (e: any) => {
-  console.log(e)
-  if (e.text === '删除订单') {
-    // 删除订单
-    deleteConsultOrder(props.item)
-  } else if (e.text === '查看处方') {
-    showPrescription(props.item.prescriptionId)
-  }
-}
 // 取消问诊
 // 按钮的加载状态
-const loading = ref(false)
 // 点击取消问诊
-const cancelConsultOrder = async (item: ConsultOrderItem) => {
-  loading.value = true
-  try {
-    await cancelOrder(item.id)
-    item.status = OrderType.ConsultCancel
-    item.statusValue = '已取消'
-    showSuccessToast('取消成功')
-  } catch (error) {
-    showFailToast('取消失败')
-  } finally {
-    loading.value = false
-  }
-}
+// const loading = ref(false)
+// const cancelConsultOrder = async (item: ConsultOrderItem) => {
+//   loading.value = true
+//   try {
+//     await cancelOrder(item.id)
+//     item.status = OrderType.ConsultCancel
+//     item.statusValue = '已取消'
+//     showSuccessToast('取消成功')
+//   } catch (error) {
+//     showFailToast('取消失败')
+//   } finally {
+//     loading.value = false
+//   }
+// }
+// 把上面的取消订单代码封装到hook中 可以在订单详情中复用
+const { loading, cancelConsultOrder } = useConsultOrder()
 
 // 删除订单
-const deleteLoading = ref(false)
-const deleteConsultOrder = async (item: ConsultOrderItem) => {
-  deleteLoading.value = true
-  try {
-    await deleteOrder(item.id)
-    showSuccessToast('删除成功')
-    // 通知父组件删除这条订单
-    emit('on-delete', item.id)
-  } catch (error) {
-    showFailToast('删除失败')
-  } finally {
-    deleteLoading.value = false
-  }
-}
+// const deleteLoading = ref(false)
+// const deleteConsultOrder = async (item: ConsultOrderItem) => {
+//   deleteLoading.value = true
+//   try {
+//     await deleteOrder(item.id)
+//     showSuccessToast('删除成功')
+//     // 通知父组件删除这条订单
+//     emit('on-delete', item.id)
+//   } catch (error) {
+//     showFailToast('删除失败')
+//   } finally {
+//     deleteLoading.value = false
+//   }
+// }
+// 把上面删除订单的代码封装到hook中 可以在订单详情中服用
+const { deleteConsultOrder, deleteLoading } = useDeleteOrder(() => emit('on-delete', props.item.id))
 </script>
 
 <style scoped lang="scss">

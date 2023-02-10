@@ -1,6 +1,10 @@
 <template>
   <div class="counsult-fast-page">
-    <cp-nav-bar title="极速问诊" right-text="问诊记录"></cp-nav-bar>
+    <cp-nav-bar
+      title="极速问诊"
+      right-text="问诊记录"
+      @click-right="router.push('/user/consult')"
+    ></cp-nav-bar>
     <div class="fast-logo">
       <img src="@/assets/consult-fast.png" alt="" class="img" />
       <p class="text"><span>20s</span> 快速匹配专业医生</p>
@@ -28,7 +32,8 @@
 
 <script setup lang="ts">
 import { useConsultStore } from '@/stores'
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const store = useConsultStore()
 </script>
 

@@ -120,8 +120,8 @@
 <script setup lang="ts">
 import { MsgType, PrescriptionStatus } from '@/enums'
 import type { Message, Prescription } from '@/types/room'
-import type { IllnessTime } from '@/enums'
-import { flagOptions, timeOptions } from '@/services/constants'
+// import type { IllnessTime } from '@/enums'
+// import { flagOptions, timeOptions } from '@/services/constants'
 import { showImagePreview, showToast } from 'vant'
 import type { Image } from '@/types/consult'
 import { useUserStore } from '@/stores'
@@ -130,6 +130,7 @@ import dayjs from 'dayjs'
 import { useRouter } from 'vue-router'
 import EvaluateCard from './EvaluateCard.vue'
 import { useShowPrescription } from '@/composable/index'
+import { getConsultFlagText, getIllnessTimeText } from '@/utils/filter'
 const store = useUserStore()
 defineProps<{ list: Message[] }>()
 const router = useRouter()
@@ -159,14 +160,14 @@ const previewImg = (pictures?: Image[]) => {
     showImagePreview(pictures.map((item) => item.url))
   }
 }
-// 获取患病时间文字
-const getIllnessTimeText = (time?: IllnessTime) => {
-  return timeOptions.find((item) => item.value === time)?.label
-}
-// 获取是否就诊文字
-const getConsultFlagText = (flag?: 0 | 1) => {
-  return flagOptions.find((item) => item.value === flag)?.label
-}
+// // 获取患病时间文字
+// const getIllnessTimeText = (time?: IllnessTime) => {
+//   return timeOptions.find((item) => item.value === time)?.label
+// }
+// // 获取是否就诊文字
+// const getConsultFlagText = (flag?: 0 | 1) => {
+//   return flagOptions.find((item) => item.value === flag)?.label
+// }
 </script>
 
 <style lang="scss" scoped>

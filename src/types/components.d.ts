@@ -3,6 +3,8 @@
 import CpNavBar from '../components/CpNavBar.vue'
 import CpIcon from '@/components/CpIcon.vue'
 import CpRadioBtn from '@/components/CpRadioBtn.vue'
+import CpConsultMore from '@/components/CpConsultMore.vue'
+import CpPaySheet from '@/components/CpPaySheet.vue'
 
 // 2. 声明 vue 类型模块
 declare module 'vue' {
@@ -13,5 +15,7 @@ declare module 'vue' {
     CpNavBar: typeof CpNavBar
     CpIcon: typeof CpIcon
     CpRadioBtn: typeof CpRadioBtn
+    CpConsultMore: typeof CpConsultMore
+    CpPaySheet: typeof CpPaySheet
   }
 }
