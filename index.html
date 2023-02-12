@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <title>Vite App</title> -->
+  <!-- 环境变量的标题 -->
+  <title><%=VITE_APP_TITLE%></title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+  <!-- <script src="https://connect.qq.com/qc_jssdk.js" data-appid="102015968"
+    data-redirecturi="http://consult-patients.itheima.net/login/callback"></script> -->
+  <script src="https://connect.qq.com/qc_jssdk.js" data-appid="102015968"
+    data-redirecturi="<%=VITE_APP_CALLBACK%>/login/callback"></script>
+    <!-- 只有在生产环境才会有 调试工具 -->
+    <% if(DEV){ %>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/eruda/2.4.1/eruda.min.js"></script>
+      <script>eruda.init()</script>
+      <% } %>
+  
+
+</body>
+
 </html>

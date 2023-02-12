@@ -37,6 +37,7 @@ const props = defineProps<{
   actualPayment: number //支付金额
   onClose?: () => void //关闭后执行的函数
   orderId: string //订单id
+  payCallback: string //支付成功后去的页面
 }>()
 
 // v-model:show ===  :modelShow   & @update:show =""
@@ -56,7 +57,8 @@ const pay = async () => {
     orderId: props.orderId,
     paymentMethod: paymentMethod.value,
     // 支付完成后跳转的路由地址
-    payCallback: 'http://localhost:5173/room'
+    payCallback: import.meta.env.VITE_APP_CALLBACK + props.payCallback
+    // payCallback: props.payCallback
   })
   // 跳转到链接里支付
   window.location.href = res.data.payUrl

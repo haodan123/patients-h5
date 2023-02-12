@@ -4,6 +4,7 @@ import axios, { type Method } from 'axios'
 import { showToast } from 'vant'
 
 const baseURL = 'https://consult-api.itheima.net/'
+// const baseURL = import.meta.env.BASE_URL
 
 const http = axios.create({
   baseURL,

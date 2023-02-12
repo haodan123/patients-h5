@@ -96,6 +96,7 @@
     </div>
     <!-- 支付的弹窗抽屉 -->
     <cp-pay-sheet
+      pay-callback="/room"
       :actual-payment="item.actualPayment"
       :order-id="item.id"
       v-model:show="show"

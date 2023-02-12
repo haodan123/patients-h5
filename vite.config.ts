@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import { createHtmlPlugin } from 'vite-plugin-html'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -8,7 +9,14 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 80,
+    host: true,
+    open: true
+  },
+  base: '/',
   plugins: [
+    createHtmlPlugin(),
     vue({
       reactivityTransform: true
     }),

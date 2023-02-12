@@ -19,8 +19,12 @@ export const useUserStore = defineStore(
       user.value = undefined
     }
 
+    // 记录回跳地址
+    const returnUrl = ref('')
+    const setReturnUrl = (url: string) => (returnUrl.value = url)
+
     // getter
-    return { user, setUser, delUser }
+    return { user, setUser, delUser, setReturnUrl, returnUrl }
   },
   {
     // 开启持久化数据 储存到localstore中

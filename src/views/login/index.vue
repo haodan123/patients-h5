@@ -31,7 +31,7 @@
       <van-field v-else placeholder="短信验证码" v-model="code" :rules="codeRules">
         <template #button>
           <span class="btn-send" @click="send">{{
-            time > 0 ? `${time}s后重新发送}` : '发送验证码'
+            time > 0 ? `${time}s后重新发送` : '发送验证码'
           }}</span>
         </template>
       </van-field>
@@ -54,24 +54,38 @@
 
     <div class="login-other">
       <VanDivider>第三方登录</VanDivider>
-      <div class="icon">
+      <!-- <div id="qq" class="icon"></div> -->
+      <!-- 点击qq登录的时候把之前的路由路径保存起来  方便登录完之后直接跳转到次页面 -->
+      <a class="icon" @click="store.setReturnUrl($route.query.returnUrl as string)" :href="qqUrl">
         <img src="@/assets/qq.svg" alt="" />
-      </div>
+      </a>
+      <!-- <a
+        class="icon"
+        @click="store.setReturnUrl($route.query.returnUrl as string)"
+        href="https://graph.qq.com/oauth2.0/authorize?client_id=102015968&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fconsult-patients.itheima.net%2Flogin%2Fcallback"
+      >
+        <img src="@/assets/qq.svg" alt="" />
+      </a> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import CpNavBar from '@/components/CpNavBar.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { mobileRules, passwordRules, codeRules } from '@/utils/rules'
-import { showSuccessToast, showToast, type FormInstance } from 'vant'
-import { loginByPassword, sendMobileCode, loginByMobile } from '@/services/user'
+import { showSuccessToast, showToast } from 'vant'
+import { loginByPassword, loginByMobile } from '@/services/user'
 import { useUserStore } from '@/stores'
 import { useRoute, useRouter } from 'vue-router'
+import { useMobileCode } from '@/composable'
 const route = useRoute()
 const router = useRouter()
-const form = ref<FormInstance>()
+
+// qq跳转的url
+const qqUrl = `https://graph.qq.com/oauth2.0/authorize?client_id=102015968&response_type=token&scope=all&redirect_uri=${encodeURIComponent(
+  import.meta.env.VITE_APP_CALLBACK + '/login/callback'
+)}`
 // pinia
 const store = useUserStore()
 // 是否用密码登录
@@ -86,18 +100,9 @@ const password = ref('abc12345')
 const code = ref('')
 // 同意条款
 const agree = ref(false)
-// 倒计时
-const time = ref(0)
-// 发送验证码
-const send = async () => {
-  // 已经倒计时time的值大于0，此时不能发送验证码
-  if (time.value > 0) return
-  // 校验是否输入了手机号
-  await form.value?.validate('mobile')
-  await sendMobileCode(mobile.value, 'login')
+// 发送验证码的 hook  在logincallback 中也复用了
+const { send, time } = useMobileCode(mobile.value, 'login')
 
-  showSuccessToast('发送成功')
-}
 // 登录
 const login = async () => {
   if (!agree.value) return showToast('请勾选用户协议')
@@ -113,62 +118,13 @@ const login = async () => {
   router.replace((route.query.returnUrl as string) || '/user')
   showSuccessToast('登录成功')
 }
+// qq登录
+onMounted(() => {
+  // window.QC.Login({
+  //   btnId: 'qq'
+  // })
+})
 </script>
 <style scoped lang="scss">
-.login {
-  &-page {
-    padding-top: 46px;
-  }
-  &-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    line-height: 1;
-    padding: 30px 30px 50px;
-    h3 {
-      font-weight: normal;
-      font-size: 24px;
-    }
-    a {
-      font-size: 15px;
-    }
-  }
-  &-other {
-    margin-top: 60px;
-    padding: 0 30px;
-    .icon {
-      display: flex;
-      justify-content: center;
-      img {
-        width: 36px;
-        height: 36px;
-        padding: 4px;
-      }
-    }
-  }
-}
-
-.van-form {
-  padding: 0 14px;
-  .cp-cell {
-    height: 52px;
-    line-height: 24px;
-    padding: 14px 16px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    .van-checkbox {
-      a {
-        color: var(--cp-primary);
-        padding: 0 5px;
-      }
-    }
-    .btn-send {
-      color: var(--cp-primary);
-      &.active {
-        color: rgba(22, 194, 163, 0.5);
-      }
-    }
-  }
-}
+@import '@/styles/login.scss';
 </style>

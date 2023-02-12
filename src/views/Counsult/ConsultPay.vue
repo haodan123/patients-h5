@@ -35,6 +35,7 @@
     />
     <!-- 支付的抽屉组件  代码全部封装到 CpPaySheet中了 -->
     <CpPaySheet
+      pay-callback="/room"
       :onClose="onClose"
       :orderId="orderId!"
       v-model:show="show"
